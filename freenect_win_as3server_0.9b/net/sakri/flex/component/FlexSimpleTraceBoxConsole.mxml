@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:comp="net.sakri.flex.component.*" currentState="hidden" >
+
+	<mx:states>
+		<mx:State name="hidden">
+			<mx:AddChild>
+				<mx:Button label="show trace box" click="currentState='visible'" />
+			</mx:AddChild>			
+		</mx:State>
+		<mx:State name="visible">
+			<mx:AddChild>
+				<mx:VBox width="100%" visible="true">
+					<comp:FlexSimpleTraceBox width="100%" height="{height-30}" fontSize="10" />
+					<mx:HBox right="0">
+						<mx:Button label="clear" click="net.sakri.flex.component.FlexSimpleTraceBox.clear();"  />						
+						<mx:Button label="hide trace box" click="currentState='hidden'"  />						
+					</mx:HBox>
+				</mx:VBox>
+			</mx:AddChild>			
+		</mx:State>
+
+	</mx:states>
+</mx:Canvas>
