@@ -66,7 +66,7 @@ package org.as3kinect
 		/*
 		 * Process blobs from BitmapData, if _w and _h set they will be returned in that resoluton
 		 */		
-		public static function getBlobs(r:BitmapData, r2:BitmapData, _w:Number = 0, _h:Number = 0):Array 
+		public static function getBlobs(r:BitmapData, r2:BitmapData, orig:BitmapData, _w:Number = 0, _h:Number = 0):Array 
 		{
 			//if _w and _h not specified use as3kinect constants
 			if(_w == 0) _w = as3kinect.IMG_WIDTH;
@@ -74,9 +74,6 @@ package org.as3kinect
 			
 			var i:int;
 			var blobs:Array = new Array();
-			quarter = new Array();
-			half = new Array();
-			whole = new Array();
 		
 			//Looking for the blobs
 			while (i < as3kinect.MAX_BLOBS)
@@ -125,42 +122,13 @@ package org.as3kinect
 							var bwColor = ColorControl.hexToRGB(r.getPixel32(blob.rect.x + (blob.rect.width/2), blob.rect.y+blob.rect.height-15));
 							//trace("red "+bwColor.red + "; green "+bwColor.green+"; blue "+bwColor.blue);
 							
-								blobs.push(new Array(blob,blob.rect));/*
-								var colData:Object = {};
-								//var pixColor = r2.getPixel32(blob.rect.x + (blob.rect.width/2), blob.rect.y+blob.rect.height-15);
-								colData = ColorControl.hexToRGB(pixColor);
-								//trace(colData);
-								var curNote = SampleColors.determineColor(colData);
-								
-								//what kind of note is this? push x,y to corresponding array
-								if(curNote === "quarter") {
-									quarter.push(new Array(blob.rect.x+blob.rect.width/2, blob.rect.bottom));
-								} else if(curNote === "half") {
-									half.push(new Array(blob.rect.x+blob.rect.width/2, blob.rect.bottom));
-								} else if(curNote === "whole") {
-									whole.push(new Array(blob.rect.x+blob.rect.width/2, blob.rect.bottom));
-								}
-								*/
+							blobs.push(new Array(blob,blob.rect, NoteDetection.detectNote(new BitmapData().copyPixels(orig,blob.rect))));
 							
 							r.floodFill(xx, yy, as3kinect.BLOB_PROCESSED_COLOR);
 			            } else {
 						//Finally we paint our blob to a BLOB_PROCESSED_COLOR so we can discard it in the next pass
 			           		r.floodFill(xx, yy, 0x00ffff);
 						}
-						/*
-						//show us on the blob screen (left screen) that this note is getting picked up
-						if(curNote === "quarter") {
-							//r.floodFill(xx, yy, 0x00eaff);
-						
-						} else if(curNote === "half") {
-							//r.floodFill(xx, yy, 0xff0000);
-						
-						}/* else if(curNote === "orange") { current prototype only has need for rgb
-							r.floodFill(xx, yy, 0xff7e00);
-						}
-						else if(curNote === "whole") {
-							//r.floodFill(xx, yy, 0x00ff00);
-						}ZZZZZZZZ*/
 			        }
 			    }
 			    i++;

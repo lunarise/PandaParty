@@ -1,177 +1,86 @@
 ﻿package code
 {
-	import flash.display.MovieClip;
 	import flash.display.BitmapData;
-	import flash.display.Bitmap;
-	import flash.display.DisplayObject;
-	import flash.filters.ColorMatrixFilter;
-	import flash.geom.Rectangle;
-	import flash.geom.Point;
-	import flash.geom.ColorTransform;
-	
-	import flash.utils.ByteArray;
-	
-	//as3kinect (OpenKinect) libraries
-	import org.as3kinect.as3kinect;
-	import org.as3kinect.as3kinectWrapper;
-	import org.as3kinect.as3kinectUtils;
-	import org.as3kinect.events.as3kinectWrapperEvent;
-	import org.as3kinect.objects.motorData;
-	
-	import flash.events.MouseEvent;
-	import flash.events.Event;
-	import flash.events.TouchEvent;
-	
-	
-	import code.Filters;
-	
-	import flash.display.PixelSnapping;
-
-	import Tone;
-	import flashx.textLayout.formats.Float;
-
-	public class NoteDetection extends MovieClip
+	import code.SampleColors;
+	public class NoteDetection
 	{
-		private var doc:Document;
-		private var _notes			:Array;
-		private var _blob_array		:Array;
-		
-		//holds quarter, half, whole notes 
-		private var quarter:Array = new Array();
-		private var half:Array = new Array();
-		private var whole:Array = new Array();
 
-		private var _canvas_video_feed	:BitmapData;
-		
-		private var _bw_bmp		:Bitmap; //holds bw feed
-		private var _color_bmp		:Bitmap; //holds color feed
-		
-		private var _min_depth_dragging	:Boolean = false;
-		private var _max_depth_dragging	:Boolean = false;
-		private var _motor_dragging		:Boolean = false;
-		private var _threshold_dragging	:Boolean = false;
-		private var _blobs_on			:Boolean = false;
-		private var _wb_filter_on		:Boolean = false;
-		
-		private var _threshold_value	:int = 50;
-		
-		private var _tone	:Tone;
-		private var _as3w	:as3kinectWrapper;
-		
-		
-		const rc:Number = 1/3, gc:Number = 1/3, bc:Number = 1/3;
-		public function NoteDetection(noteLocations:Array,aDoc:Document)
+		//Array containing ranges and note types corresponding to the color
+		var ranges:Array = new Array();
+
+		//Green
+		ranges[0] = new Object();
+		ranges[0].Low = 145;
+		ranges[0].High = 160;
+		ranges[0].Name = "quarter";
+
+		//Green (Alt Values)
+		ranges[1] = new Object();
+		ranges[1].Low = 57;
+		ranges[1].High = 61;
+		ranges[1].Name = "quarter";
+
+		//Yellow
+		ranges[2] = new Object();
+		ranges[2].Low = 35;
+		ranges[2].High = 41;
+		ranges[2].Name = "rest";
+
+		//Pink
+		ranges[3] = new Object();
+		ranges[3].Low = 325;
+		ranges[3].High = 331;
+		ranges[3].Name = "upsidedown_hat";
+
+		//Blue
+		ranges[4] = new Object();
+		ranges[4].Low = 235;
+		ranges[4].High = 250;
+		ranges[4].Name = "hat";
+
+		//Red
+		ranges[5] = new Object();
+		ranges[5].Low = 349;
+		ranges[5].High = 360;
+		ranges[5].Name = "whole";
+
+		//Red (Alt Values)
+		ranges[6] = new Object();
+		ranges[6].Low = 0;
+		ranges[6].High = 4;
+		ranges[6].Name = "whole";
+
+		//Orange
+		ranges[7] = new Object();
+		ranges[7].Low = 14;
+		ranges[7].High = 18;
+		ranges[7].Name = "half";
+
+
+		public function NoteDetection()
 		{
-			doc = aDoc;
-			_notes = new Array();
-			_notes = noteLocations;
-	
-			//Instantiating the wrapper library
-			_as3w = new as3kinectWrapper();
-			
-			//Add as3kinectWrapper events (depth, video and acceleration data)
-			_as3w.addEventListener(as3kinectWrapperEvent.ON_VIDEO, got_video);
-			_as3w.addEventListener(as3kinectWrapperEvent.ON_ACCELEROMETER, got_motor_data);
 
-			//video feed (BITMAP)
-			_canvas_video_feed = _as3w.video.bitmap;
-			
-			//initialize bitmap obj
-			_bw_bmp = new Bitmap();
-			_color_bmp = new Bitmap();
-			
-			//create bitmapdata based on video feed with filters
-			_color_bmp.bitmapData = Filters.applyColorFilterToBitmapData(_canvas_video_feed);  //apply filter to bitmap we want in color.
-			_bw_bmp.bitmapData = Filters.applyBWFilterToBitmapData(_canvas_video_feed); 			 //apply filter to bitmap we want to be black and white.
-		
-			//add to screen
-			doc.addChild(_bw_bmp);
-			//rgb_cam.addChild(_color_bmp);
-			
-			//blobs should be on from the get go
-			_blobs_on = true;
-			
-			//On every frame call the update method
-			doc.addEventListener(Event.ENTER_FRAME, update);
-		}
-		
-		
-		//UPDATE METHOD (This is called each frame)
-		private function update(event:Event){
-			_as3w.video.getBuffer();
-			_as3w.motor.getData();
-		}
-		
-		
-		
-		//GOT VIDEO METHOD
-		private function got_video(event:as3kinectWrapperEvent):void{
-			/*//Convert Received ByteArray into BitmapData
-			trace(event.data);
-			
-			//as3kinectUtils.byteArrayToBitmapData(event.data, _canvas_video_feed);
 
-			_color_bmp.bitmapData = Filters.applyColorFilterToBitmapData(_canvas_video_feed);  //apply filter to bitmap we want in color.
-			_bw_bmp.bitmapData = Filters.applyBWFilterToBitmapData(_canvas_video_feed); 			 //apply filter to bitmap we want to be black and white.
-			
-			//if looking for blobs
-			if(_blobs_on) { 
-				//Process Blobs from image
-				_blob_array = as3kinectUtils.getBlobs(_bw_bmp.bitmapData,_color_bmp.bitmapData);
-				
-				//where are the specific types of blobs?
-				quarter = as3kinectUtils.quarter;
-				half = as3kinectUtils.half;
-				whole = as3kinectUtils.whole;
-			}
-			
-			//update text at the bottom
-			updateText();*/
-		}
-		
-		//how many whole/half/quarter notes are there?
-		private function updateText() {
-			//overall blobs
-			doc.blobCountText.text = "There are "+_blob_array.length+" blobs";
-			
-			
-			//print all quarter notes & their positions
-			doc.quarterText.text = quarter.length.toString();
-			
-			var quarterPos:String = "";
-			if(quarter.length >= 1) {
-				for(var q=0; q < quarter.length; q++) {
-					quarterPos += "x: "+quarter[q][0]+"\ny: "+quarter[q][1]+"\n\n";
-				}
-			}
-			doc.quarterPosition.text = quarterPos;
-			
-			//print all half notes & their positions
-			doc.halfText.text = half.length.toString();
-			var halfPos:String = "";
-			if(half.length >= 1) {
-				for(var h=0; h < half.length; h++) {
-					halfPos += "x: "+half[h][0]+"\ny: "+half[h][1]+"\n\n";
-				}
-			}
-			doc.halfPosition.text = halfPos;
-			
-			//print all whole notes & their positions
-			doc.wholeText.text = whole.length.toString();
-			
-			var wholePos:String = "";
-			if(whole.length >= 1) {
-				for(var w=0; w < whole.length; w++) {
-					wholePos += "x: "+whole[w][0]+"\ny: "+whole[w][1]+"\n\n";
-				}
-			}
-			doc.wholePosition.text = wholePos;
 		}
 
-		//GOT MOTOR DATA (Accelerometer info) - keeping if needed later
-		function got_motor_data(event:as3kinectWrapperEvent):void
+		//Function to detect note
+		public static function detectNote(bitmapData:BitmapData)
 		{
-			var object:motorData = event.data;
+
+			var hueVal:int = Math.round(SampleColors.getAverageColor(bitmapData));
+
+			for (var i:int = 0; i < ranges.length; i++)
+			{
+
+
+				if (hueVal >= ranges[i].Low && hueVal <= ranges[i].High)
+				{
+
+					return ranges[i].Name;
+
+				}
+			}
+
 		}
 	}
 }

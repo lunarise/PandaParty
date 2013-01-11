@@ -85,6 +85,8 @@
 			return r << 16 | g << 8 | b;
 		}
 		
+
+		
 		public static function hexToRGB(val:uint):Object
 		{
 			var col:Object = {};
@@ -116,6 +118,48 @@
 				colorValue = colorValue % 255 - 1;
 			}
 			return colorValue;
+		}
+		
+		public static function getHueValueFromRGB(redVal:int, greenVal:int, blueVal:int):Number{
+			
+			//return 360 + (180 /Math.PI) * Math.atan2(Math.sqrt(3) *(greenVal - blueVal), 2 * redVal - greenVal - blueVal);
+			var r:Number = redVal/255
+    		var g:Number = greenVal/255
+   			var b:Number = blueVal/255;
+    		var max:Number = Math.max(r, g, b);
+    		var min:Number = Math.min(r, g, b);
+    		var h:Number = max;
+    		var d = max - min;
+
+			if(max == min){
+				h = 0; // achromatic
+			}
+			else{
+
+				if(max == r){
+		
+					if(g < b){
+						h = (g-b) / d + 6;
+					}
+					else{
+						h = (g-b) / d;
+					}
+		
+				}
+				else if(max == g){
+					h = (b - r) / d + 2;
+				}
+				else if(max == b){
+					h = (r - g) / d + 4;
+				}
+		
+				
+				h = (h/6) * 360;
+		
+				
+			}
+			
+			return h;
 		}
 	}
 }
