@@ -54,7 +54,7 @@
 		ranges[7] = new Object();
 		ranges[7].Low = 14;
 		ranges[7].High = 18;
-		ranges[7].Name = "whole";
+		ranges[7].Name = "whole_note";
 
 
 		public function NoteDetection()
