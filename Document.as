@@ -8,7 +8,6 @@
 	import flash.geom.Rectangle;
 	import flash.geom.Point;
 	import flash.geom.ColorTransform;
-	
 	import flash.utils.ByteArray;
 	
 	//as3kinect (OpenKinect) libraries
@@ -55,11 +54,11 @@
 		
 		//dummy staff for testing purposes. real staff is stored above once calculated
 		private var temp_staff: Array = new Array(
-											  new Array("f", new Array(60,100)),
+											  new Array("high f", new Array(60,100)),
 											  new Array("d", new Array(60,200)),
 											  new Array("b", new Array(60,300)),
 											  new Array("g", new Array(60,400)),
-											  new Array("e", new Array(60,500)));
+											  new Array("low e", new Array(60,500)));
 											  
 		private var _line_spacing :int = 0;
 		private var _staff_array	:Array;
@@ -68,7 +67,7 @@
 		private var _noblack_bmp		:Bitmap; //holds bw feed
 		private var _color_bmp		:Bitmap; //holds color feed
 		
-		private var _blob_array:Array = new Array();
+		public var _blob_array:Array = new Array();
 		private var _canvas_video_feed	:BitmapData;
 		
 		private var _staff_bw_bmp		:Bitmap; //holds bw feed
@@ -262,23 +261,55 @@
 			}
 		}
 		
+		//the notes on the map right now - what are they?
 		private function storeNotesOnStaff() {
-			var buffer:int = 10;
+			var buffer:int = 5;
 			for(var i:int=0; i < _blob_array.length; i++) {
 				for(var j:int = 0; j < _notearr.length; j++) {
-					if((_blob_array[i][1].y + (_blob_array[i][1].height/2) > _notearr[j][1][1]) && (_blob_array[i][1].y - (_blob_array[i][1].height/2) < _notearr[j+1][1][1])) {
-						trace(" 2 this note's y is at "+_blob_array[i][1].y+" and is between notes "+_notearr[j]+" and "+_notearr[j+1]);
-						_blob_array[i].push(_notearr[j][0]);
-						break;
-					} else {
+					if((_blob_array[i][1].y + _blob_array[i][1].height - buffer >= _notearr[j][1][1] ) && 
+					   (_blob_array[i][1].y + _blob_array[i][1].height + buffer <= _notearr[j+1][1][1])) {
+						var testY:int = _blob_array[i][1].y + _blob_array[i][1].height -buffer;
+						trace(" 2 this note's y is at "+testY+" and is between notes "+_notearr[j]+" and "+_notearr[j+1]);
+						
+						var lineYToMatch:int = getCloserLine(testY,_notearr[j][1][1] - buffer,_notearr[j+1][1][1] + buffer);
+						
+						if(i+1 < _blob_array.length) {
+							//set note to closer letter
+							if(lineYToMatch == (_notearr[j][1][1] - buffer)) {
+								_blob_array[i].push(_notearr[j][0]);
+								trace("matches "+_notearr[j][0][1]);
+							} else {
+								_blob_array[i].push(_notearr[j+1][0]);
+								trace("2 matches "+_notearr[j+1][1][1]);
+							}
+							
+							break;
+						}
+					} /*else {
+						var testy:int = _blob_array[i][1].y + _blob_array[i][1].height -buffer;
 						trace("not in valid range. wat");
+						trace("3 this note's y is at "+testy);
+						trace("ranges are "+_notearr[j][1][1]+" and "+_notearr[j+1][1][1]);
 					}
 					
-					trace("i:"+i+", j:"+j);
+					trace("i:"+i+", j:"+j);*/
 				}
 			}
 		}
 	
+		//is this note a or b? halp
+		private function getCloserLine(yToTest:int,yOne:int,yTwo:int):int {
+			var average:int = (yOne + yTwo)/2;
+			var finalY:int = 0;
+			
+			if(yToTest >= average)
+				finalY = Math.max(yOne,yTwo);
+			else if(yToTest < average) {
+				finalY = Math.min(yOne,yTwo);
+			}
+			
+			return finalY;
+		}
 		
 		private function checkNextLine(buffer:int, currentBlob:int=0, currentLine:int=0):Boolean {
 			if((_blob_array[currentBlob][1].y - buffer >= _notearr[currentLine][1][1]) && (_blob_array[currentBlob][1].y - buffer <= _notearr[currentLine+1][1][1]))  {

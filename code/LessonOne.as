@@ -4,7 +4,7 @@
 	import code.Staff;
 	
 	public class LessonOne extends Lessons {
-		private var question:String;
+		private var answer:String;
 		private var myDoc:Document;
 		
 		//how long is each individual part?
@@ -18,7 +18,7 @@
 		//
 		public var didPlaceNote:Boolean = false;
 		//what have I asked?
-		private var answerArray:Array = new Array("a","b");
+		private var answerArray:Array = new Array();
 		public var lessonFinished:Boolean = false;
 		private var staff:Staff;
 		
@@ -59,7 +59,7 @@
 			trace(note + "; "+instructions.replace(charToReplace,note.toUpperCase()));
 			
 			//listen for the events. did they do it?
-			//myDoc.addEventListener(Event.ENTER_FRAME,checkStaff);
+			myDoc.addEventListener(Event.ENTER_FRAME,checkStaff);
 			staff = new Staff(myDoc,note);
 			staff.addNote(myDoc,note,"quarter_note");
 		}
@@ -120,6 +120,7 @@
 		
 		//mark this question as asked. set currentQuestion if needed, etc.
 		private function storeOldQuestions(question:String) {
+			answer = question;
 			answerArray.push(question);
 			currentQuestion++;
 			//removeStaff();
@@ -133,7 +134,26 @@
 		}
 		
 		private function checkStaff(e:Event) {
-			if(currentPart === 0) {
+			if(myDoc._blob_array.length > 0) {
+				trace(myDoc._blob_array[0]);
+				
+				if(myDoc._blob_array[0][2]) {
+					if(myDoc._blob_array[0][2] === answer) {
+						trace("correct!");
+						showFeedback(true);
+						getQuestion();
+					} else {
+						showRespond(false);
+						trace("false!");
+					}
+				} else {
+					trace("letter doesn't exist quite yet");
+				}
+			}
+		}
+		
+		private function showFeedback(correct:Boolean) {
+			if(correct) {
 				
 			} else {
 				
