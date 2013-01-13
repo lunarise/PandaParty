@@ -55,6 +55,8 @@ package org.as3kinect
 		public static var half:Array = new Array();
 		public static var whole:Array = new Array();
 		
+		
+		
 		/*
 		 * Draw ARGB from ByteArray to BitmapData object
 		 */
@@ -124,7 +126,9 @@ package org.as3kinect
 							//trace("red "+bwColor.red + "; green "+bwColor.green+"; blue "+bwColor.blue);
 							
 							//, NoteDetection.detectNote(new BitmapData().copyPixels(orig,blob.rect))
-							blobs.push(new Array(blob,blob.rect));
+							var clonedBitmapData:BitmapData = new BitmapData(blob.rect.width, blob.rect.height);
+							clonedBitmapData.copyPixels(orig, blob.rect, new Point(0,0));
+							blobs.push(new Array(blob,blob.rect, NoteDetection.detectNote(clonedBitmapData)));
 							
 							r.floodFill(xx, yy, as3kinect.BLOB_PROCESSED_COLOR);
 			            } else {
