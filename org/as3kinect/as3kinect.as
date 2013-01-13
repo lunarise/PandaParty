@@ -64,7 +64,7 @@
 		public static const BLOB_COLOR:uint = 0xFFFFFFFF;
 		public static const BLOB_FILL_COLOR:uint = 0xFF0000FF; // red
 		public static const BLOB_PROCESSED_COLOR:uint = 0x00FF00FF; //green
-		public static const BLOB_MIN_WIDTH:uint = 50;
+		public static const BLOB_MIN_WIDTH:uint = 20;
 		public static const BLOB_MAX_WIDTH:uint = 100;
 		public static const BLOB_MIN_HEIGHT:uint = 25;
 		public static const BLOB_MAX_HEIGHT:uint = 100;

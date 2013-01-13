@@ -1,13 +1,30 @@
 ﻿<questions>
 	<question>
-		<directions>Name the highlighted line</directions>
 		<lesson>1</lesson>
-		<answers>
-			<answer>f</answer>
-			<answer>d</answer>
-			<answer>b</answer>
-			<answer>g</answer>
-			<answer>e</answer>
-		</answers>
+		<section>
+			<directions>Where on the staff is '_'?</directions>
+			<answers>
+				<answer>high f</answer>
+				<answer>high e</answer>
+				<answer>d</answer>
+				<answer>c</answer>
+				<answer>b</answer>
+				<answer>a</answer>
+				<answer>g</answer>
+				<answer>low f</answer>
+				<answer>low e</answer>
+			</answers>
+		</section>
+		<section>
+			<directions>Place a '_' on the staff.</directions>
+			<answers>
+				<answer>quarter note</answer>
+				<answer>half note</answer>
+				<answer>whole note</answer>
+				<answer>quarter rest</answer>
+				<answer>whole rest</answer>
+				<answer>half rest</answer>
+			</answers>
+		</section>
 	</question>
 </questions>

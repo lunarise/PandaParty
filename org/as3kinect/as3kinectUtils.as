@@ -46,6 +46,7 @@ package org.as3kinect
 	
 	import code.ColorControl;
 	import code.SampleColors;
+	import code.NoteDetection;
 	
 	public class as3kinectUtils
 	{
@@ -122,7 +123,8 @@ package org.as3kinect
 							var bwColor = ColorControl.hexToRGB(r.getPixel32(blob.rect.x + (blob.rect.width/2), blob.rect.y+blob.rect.height-15));
 							//trace("red "+bwColor.red + "; green "+bwColor.green+"; blue "+bwColor.blue);
 							
-							blobs.push(new Array(blob,blob.rect, NoteDetection.detectNote(new BitmapData().copyPixels(orig,blob.rect))));
+							//, NoteDetection.detectNote(new BitmapData().copyPixels(orig,blob.rect))
+							blobs.push(new Array(blob,blob.rect));
 							
 							r.floodFill(xx, yy, as3kinect.BLOB_PROCESSED_COLOR);
 			            } else {
