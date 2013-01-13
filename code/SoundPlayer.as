@@ -209,6 +209,14 @@
 				
 			}
 			
+			public function playTone(theNote:String){
+				var freq = getFrequency(theNote);
+				var theTone;
+				theTone = new Tone(freq);
+				theTone.play();
+				
+			}
+			
 			return newNoteArray;
 			
 			
