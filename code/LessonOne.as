@@ -2,6 +2,10 @@
 	import flash.events.*;
 	import flash.net.*;
 	import code.Staff;
+	import code.SoundPlayer;
+	import code.MusicNote;
+	import code.Feedback;
+	import flash.utils.Timer;
 	
 	public class LessonOne extends Lessons {
 		private var answer:String;
@@ -14,19 +18,25 @@
 		//trackers
 		private var currentPart:int = 0; //part 1 or 2? 0=1, 1=2 (must be this way to access xml)
 		private var currentQuestion:int = 0; //question # out of total parts (for use in progress bar)
-		
+		private var numWrong:int = 0;
 		//
 		public var didPlaceNote:Boolean = false;
 		//what have I asked?
 		private var answerArray:Array = new Array();
 		public var lessonFinished:Boolean = false;
 		private var staff:Staff;
+		private var soundPlayer:SoundPlayer; 
+		private var timer:Timer;
+		private var feedback:Feedback;
+		
+		private var correctFeedback = false;
 		
 		public function LessonOne(theDoc:Document) {
 			lesson = 0;
 			myDoc = theDoc;
 			currentQuestion = answerArray.length;
 			currentPart = 0;
+			myDoc.addEventListener(Event.ENTER_FRAME,checkStaff);
 		}
 		
 		//start setting xml vars
@@ -59,9 +69,8 @@
 			trace(note + "; "+instructions.replace(charToReplace,note.toUpperCase()));
 			
 			//listen for the events. did they do it?
-			myDoc.addEventListener(Event.ENTER_FRAME,checkStaff);
+			//
 			staff = new Staff(myDoc,note);
-			staff.addNote(myDoc,note,"quarter_note");
 		}
 		
 		//calls itself until it gets a question the user hasn't already answered
@@ -124,40 +133,78 @@
 			answerArray.push(question);
 			currentQuestion++;
 			//removeStaff();
-			
+			trace("here's the current part "+currentPart);
 
 			if(currentQuestion === partOneLen+1) 
 				currentPart = 1;
 			
-			if(currentQuestion > (partOneLen + partTwoLen)) 
+			if(currentQuestion > (partOneLen + partTwoLen))  {
 				lessonFinished = true;
+				myDoc.removeEventListener(Event.ENTER_FRAME,checkStaff);
+			}
 		}
 		
 		private function checkStaff(e:Event) {
-			if(myDoc._blob_array.length > 0) {
-				trace(myDoc._blob_array[0]);
-				
-				if(myDoc._blob_array[0][2]) {
-					if(myDoc._blob_array[0][2] === answer) {
-						trace("correct!");
-						showFeedback(true);
-						getQuestion();
-					} else {
-						showRespond(false);
-						trace("false!");
+			
+			//clean staff
+			staff.cleanStaff(myDoc);
+			
+			//if answer, user has placed note
+			if(answer) {
+				//double check, make sure there's really a note there. oh god  i hope there is.
+				if(myDoc._blob_array.length > 0) {
+					trace("this blob is a "+myDoc._blob_array[0]);
+					
+					//ok let's just double check. is that letter there?
+					if(myDoc._blob_array[0][3]) {
+						myDoc.removeEventListener(Event.ENTER_FRAME,checkStaff);
+						timer = new Timer(1000,4);
+						timer.start();
+						
+						staff.addNote(myDoc,myDoc._blob_array[0][3],myDoc._blob_array[0][2]);
+						
+						if(myDoc._blob_array[0][3] == answer) {
+							feedback = new Feedback('Right');
+							soundPlayer = new SoundPlayer();
+							soundPlayer.playTone(answer);
+							staff.addNote(myDoc,myDoc._blob_array[0][3],myDoc._blob_array[0][2]);
+						} else {
+							feedback = new Feedback('Wrong');
+							trace("false!");
+						}
+						
+						myDoc.addChild(feedback);
+						timer.addEventListener(TimerEvent.TIMER_COMPLETE,removeFeedback);
 					}
 				} else {
-					trace("letter doesn't exist quite yet");
+					
 				}
 			}
 		}
 		
-		private function showFeedback(correct:Boolean) {
-			if(correct) {
+		private function removeFeedback(e:TimerEvent) {
+			myDoc.staffArea.removeChild(staff);
+			myDoc.removeChild(feedback);
+			
+			trace(feedback);
+			staff = new Staff(myDoc);
+			trace("4 seconds later");
+			if(correctFeedback) {
+				getLesson();
 				
 			} else {
+				if(numWrong < 3) {
+					numWrong++;
+				} else {
+					
+				}
 				
 			}
+		
+			//myDoc.feedback.alpha = 0;
+			myDoc.addEventListener(Event.ENTER_FRAME,checkStaff);
+			timer.removeEventListener(TimerEvent.TIMER_COMPLETE,removeFeedback);
+			
 		}
 
 	}
